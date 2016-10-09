@@ -1,4 +1,7 @@
 ## Build Vertica Docker Instance
+
+Greatly inspired by work done by sumitchawla/vertica - but I wanted something that worked with Vertica 8 and that seemed to work for persistent stores.
+
 ### Prerequisites
 - RPM of Vertica install (http://my.vertica.com)
 - Docker
