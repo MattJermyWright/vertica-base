@@ -1,21 +1,8 @@
 #!/bin/bash
 
 # Enable NTP
-/sbin/service ntpd restart
-/sbin/chkconfig ntpd on
+service ntp restart
 
-# Disable SELInux
-setenforce 0
-
-# Disable transparent_hugepage - requires privledged, but doesn't seem to be necessary
-# echo never > /sys/kernel/mm/transparent_hugepage/enabled
-
-# Enable Openssh if required to check out server
-# # chown -R dbadmin:verticadba "$VERTICADATA"
-# echo -e "passwordhere\npasswordhere"| passwd "root" 
-# echo -e "passwordhere\npasswordhere"| passwd "dbadmin" 
-# ## Start Openssh to remote connect
-# service sshd restart
 
 # Setup Vertica configuration directory
 export VERTICACONF=$VERTICADATA/config
