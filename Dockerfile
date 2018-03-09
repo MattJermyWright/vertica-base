@@ -1,4 +1,4 @@
-FROM ubuntu:14.04
+FROM ubuntu:latest
 
 RUN echo 'export TZ="MST"'>> /etc/profile
 RUN echo 'export TZ="MST"'>> /etc/bashrc
@@ -7,11 +7,11 @@ RUN echo 'export LANG="en_US.UTF-8"' >> /etc/bashrc
 
 RUN apt-get update && apt-get upgrade -y
 
-RUN apt-get install -y ntp openssh-client openssh-server dialog curl
+RUN apt-get install -y ntp openssh-client openssh-server dialog curl locales
 
 RUN apt-get install -y openssl libssl-dev
 
-ADD vertica-8.0.0.deb vertica.deb
+ADD vertica-9.deb vertica.deb
 
 #RUN curl -o /usr/local/bin/gosu -SL 'https://github.com/tianon/gosu/releases/download/1.10/gosu' \
 #	&& chmod +x /usr/local/bin/gosu
@@ -45,9 +45,9 @@ RUN chsh -s /bin/bash root
 
 # Install vertica by DEB file
 RUN dpkg -i vertica.deb
-RUN apt-get install -fy 
+RUN apt-get install -fy
 
-# Install database - 
+# Install database -
 RUN ["/bin/bash","-l","-c","/opt/vertica/sbin/install_vertica --license CE --accept-eula --hosts 127.0.0.1 --dba-user-password-disabled --failure-threshold NONE --no-system-configuration"]
 
 # Create default database
