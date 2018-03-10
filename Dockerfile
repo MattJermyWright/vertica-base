@@ -57,7 +57,8 @@ RUN /opt/vertica/bin/admintools -t create_db -s localhost -d docker -c /home/dba
 USER root
 
 # Used for persistent data when defined
-ENV VERTICADATA /home/dbadmin/docker
+ENV VERTICA_DATA /home/dbadmin/docker
+ENV VERTICA_CONFIG /home/dbadmin/docker/config
 VOLUME  /home/dbadmin/docker
 
 ADD ./verticaStart.sh /
