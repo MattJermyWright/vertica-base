@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:16.04
 
 RUN echo 'export TZ="MST"'>> /etc/profile
 RUN echo 'export TZ="MST"'>> /etc/bashrc
@@ -57,9 +57,11 @@ RUN /opt/vertica/bin/admintools -t create_db -s localhost -d docker -c /home/dba
 USER root
 
 # Used for persistent data when defined
-ENV VERTICADATA /home/dbadmin/docker
+ENV VERTICA_DATA /home/dbadmin/docker
+ENV VERTICA_CONFIG /home/dbadmin/docker/config
 VOLUME  /home/dbadmin/docker
 
 ADD ./verticaStart.sh /
 RUN chmod 755 /verticaStart.sh
 ENTRYPOINT ["/verticaStart.sh"]
+# ENTRYPOINT ["/bin/bash"]
