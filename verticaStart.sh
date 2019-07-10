@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Make sure sysctl is correct - assume's admin-level permissions
+sysctl -w kernel.pid_max=524288
+
 # Enable NTP
 service ntp restart
 

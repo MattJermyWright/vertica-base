@@ -1,17 +1,32 @@
-FROM ubuntu:16.04
+# Tested with ubuntu 18.04.2 26 Jun 2019
+FROM ubuntu:latest
 
-RUN echo 'export TZ="MST"'>> /etc/profile
-RUN echo 'export TZ="MST"'>> /etc/bashrc
+# Setup timezone and correct language locales
+# Vertica is picky about this
+ENV TZ 'UTC'
+RUN echo 'export TZ=$TZ'>> /etc/profile
+RUN echo 'export TZ=$TZ'>> /etc/bashrc
 RUN echo 'export LANG="en_US.UTF-8"' >> /etc/profile
 RUN echo 'export LANG="en_US.UTF-8"' >> /etc/bashrc
 
-RUN apt-get update && apt-get upgrade -y
+# Update the Apt library to latest and resolve any dependencies
+RUN apt-get update
 
-RUN apt-get install -y ntp openssh-client openssh-server dialog curl locales
+# Update timezone so it's correctly reporting UTC
+ENV DEBIAN_FRONTEND 'noninteractive'
+RUN echo $TZ > /etc/timezone && \
+	apt-get install -y tzdata && \
+	rm -f /etc/localtime && \
+	ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+	dpkg-reconfigure -f noninteractive tzdata
 
-RUN apt-get install -y openssl libssl-dev
+# Install Vertica Dependencies
+RUN apt-get install -y ntp openssh-client openssh-server dialog curl openssl libssl-dev locales gnupg net-tools iproute2
 
-ADD vertica-9.deb vertica.deb
+
+# Add over the Vertica Debian package.
+# You should have already downloaded this  / accepted the community license 
+ADD vertica_9.2.1-0_amd64.deb vertica.deb
 
 #RUN curl -o /usr/local/bin/gosu -SL 'https://github.com/tianon/gosu/releases/download/1.10/gosu' \
 #	&& chmod +x /usr/local/bin/gosu
@@ -46,6 +61,15 @@ RUN chsh -s /bin/bash root
 # Install vertica by DEB file
 RUN dpkg -i vertica.deb
 RUN apt-get install -fy
+
+# Fix /etc/security/limits.conf - https://www.vertica.com/docs/9.2.x/HTML/index.htm#cshid=S0010
+RUN echo "dbadmin -       nice    0" >> /etc/security/limits.conf
+RUN echo "dbadmin -       nofile  65536" >> /etc/security/limits.conf
+
+# Fix https://www.vertica.com/docs/9.2.x/HTML/index.htm#cshid=S0130
+RUN echo "vm.max_map_count=65536" >> /etc/sysctl.conf
+# https://www.vertica.com/docs/9.2.x/HTML/index.htm#cshid=S0111
+RUN sysctl -w kernel.pid_max=524288
 
 # Install database -
 RUN ["/bin/bash","-l","-c","/opt/vertica/sbin/install_vertica --license CE --accept-eula --hosts 127.0.0.1 --dba-user-password-disabled --failure-threshold NONE --no-system-configuration"]
